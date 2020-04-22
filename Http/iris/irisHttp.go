@@ -5,7 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/kataras/golog"
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/hero"
+	"github.com/kataras/iris/v12/middleware/logger"
+	"github.com/kataras/iris/v12/middleware/recover"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"time"
 )
@@ -95,4 +100,31 @@ func RequestModel(bodyJson RequestBody) map[string]interface{}{
 
 
 	return result
+}
+
+func main() {
+	golog.SetTimeFormat("")
+	golog.SetLevel("debug")
+	app := iris.New()
+	app.Logger().SetLevel("debug")
+	app.Use(recover.New())
+	app.Use(logger.New())
+	//goroutines := New(40)
+
+	hero.Register(func (ctx iris.Context)(jsonData RequestBody){
+		ctx.ReadJSON(&jsonData)
+		return
+	})
+	inferHandler := hero.Handler(RequestModel)
+	app.Post("/infer", inferHandler)
+
+	l, err := net.Listen("tcp", "0.0.0.0:9090")
+	if err != nil{
+		golog.Error("Listener Error", err)
+	}
+	defer l.Close()
+	//l = netutil.LimitListener(l, 1)
+
+	app.Run(iris.Listener(l), iris.WithoutServerError(iris.ErrServerClosed))
+
 }

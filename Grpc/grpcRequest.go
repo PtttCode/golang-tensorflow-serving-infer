@@ -24,6 +24,7 @@ type requestBody struct{
 const (
 	modelName = "tfs-model"
 	REQUESTURL = "127.0.0.1:6007"
+	padding = "<PAD>"
 )
 
 type responseBody struct {
@@ -51,7 +52,7 @@ func getModelInput(sentence string, totalLength int)	[]byte{
 	length := len(arr)
 
 	for i:=0;i<totalLength-length;i++{
-		arr = append(arr, "<PAD>")
+		arr = append(arr, padding)
 	}
 
 

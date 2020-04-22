@@ -29,6 +29,11 @@ func timeCal(r *http.Request, start time.Time){
 }
 
 func logInit() {
+	_, err := os.Stat("log")
+	if err != nil{
+		os.Mkdir("log", os.ModePerm)
+	}
+
 	InfoFile, err := os.OpenFile("log/info.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	WarningFile, err := os.OpenFile("log/warning.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	ErrorFile, err := os.OpenFile("log/error.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
@@ -43,7 +48,7 @@ func logInit() {
 }
 
 func inferHandler(w http.ResponseWriter, r *http.Request){
-	var bodyJson requestBody
+	var bodyJson RequestBody
 	body, _ := ioutil.ReadAll(r.Body)
 	json.Unmarshal([]byte(string(body)), &bodyJson)
 
